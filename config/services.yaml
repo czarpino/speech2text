@@ -46,3 +46,12 @@ services:
     Google\Cloud\Storage\Bucket:
         factory: 'Google\Cloud\Storage\StorageClient:bucket'
         arguments: ['%googlecloud.storage.default_bucket%']
+
+    App\EventListener\PostLoadSubscriber:
+        tags:
+        - { name: doctrine.event_subscriber, connection: default }
+
+    Symfony\Component\Serializer\Normalizer\DateTimeNormalizer:
+        public: false
+        tags: [serializer.normalizer]
+        arguments: ['Y-m-d H:i:s']

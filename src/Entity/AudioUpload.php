@@ -56,9 +56,31 @@ class AudioUpload
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\AudioUploadChunk", mappedBy="audioUpload", orphanRemoval=true)
-     * @Groups({"rest"})
      */
     private $audioUploadChunks;
+
+    /**
+     * @Groups({"rest"})
+     *
+     * @var string
+     */
+    private $audioUrl;
+
+    /**
+     * @return string
+     */
+    public function getAudioUrl(): string
+    {
+        return $this->audioUrl;
+    }
+
+    /**
+     * @param string $audioUrl
+     */
+    public function setAudioUrl(string $audioUrl): void
+    {
+        $this->audioUrl = $audioUrl;
+    }
 
     public function __construct()
     {

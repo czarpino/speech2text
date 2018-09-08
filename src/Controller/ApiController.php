@@ -179,14 +179,17 @@ class ApiController extends AbstractController
      * @Route("/audio/{id}", name="api_get_audio", methods={"GET"})
      * @ParamConverter("audioUpload", class="App\Entity\AudioUpload")
      *
-     * @param Request $request
+     * @param AudioUpload $audioUpload
+     * @param SerializerInterface $serializer
      *
      * @return JsonResponse
      */
-    public function getAudio(AudioUpload $audioBundle, SerializerInterface $serializer)
-    {
+    public function getAudio(
+        AudioUpload $audioUpload,
+        SerializerInterface $serializer
+    ) {
         return new JsonResponse(
-            $serializer->serialize($audioBundle, 'json', ['groups' => ['rest']]),
+            $serializer->serialize($audioUpload, 'json', ['groups' => ['rest']]),
             200,
             [],
             true

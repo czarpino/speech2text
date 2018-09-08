@@ -32,19 +32,7 @@
                 // insertAudioRow(xhr.getResponseHeader('Location'), $shadow);
 
                 $.get(xhr.getResponseHeader('Location')).done(function (data) {
-                    $newRow = $(`
-                        <tr>
-                            <td><input type="checkbox" class="checkthis"/></td>
-                            <td>${data.filename}</td>
-                            <td>${data.uploadDate}</td>
-                            <td>${data.statusName}</td>
-                            <td>
-                                <button class="btn btn-primary" style="display: ${ data.status > 0 ? 'block' : 'none' }">Play</button>
-                                <button class="btn btn-link" style="display: ${ data.status > 1 ? 'block' : 'none' }">Transcription</button>
-                            </td>
-                        </tr>
-                    `);
-
+                    $newRow = createAudioRow(data);
                     $shadow.replaceWith($newRow);
                     $shadow = $newRow;
 
@@ -93,29 +81,33 @@
             </tr>
         `);
 
-        $('.js-upload-list').append($shadowNew);
+        $('.js-upload-list').prepend($shadowNew);
 
         return $shadowNew;
     }
 
     function insertAudioRow(location, $shadow) {
         $.get(location).done(function (data) {
-            $newRow = $(`
-                <tr>
-                    <td><input type="checkbox" class="checkthis"/></td>
-                    <td>${data.filename}</td>
-                    <td>${data.uploadDate}</td>
-                    <td>${data.statusName}</td>
-                    <td>
-                        <button class="btn btn-primary" style="display: ${ data.status > 0 ? 'block' : 'none' }">Play</button>
-                        <button class="btn btn-link" style="display: ${ data.status > 1 ? 'block' : 'none' }">Transcription</button>
-                    </td>
-                </tr>
-            `);
-
-            $shadow.replaceWith($newRow);
-            $shadow = $newRow;
+            $shadow.replaceWith(createAudioRow(data));
         });
+    }
+
+    function createAudioRow(audioUpload)
+    {
+        return $(`
+            <tr>
+                <td><input type="checkbox" class="checkthis"/></td>
+                <td>${audioUpload.filename}</td>
+                <td>${audioUpload.uploadDate}</td>
+                <td>${audioUpload.statusName}</td>
+                <td>
+                    <audio controls style="display: ${ audioUpload.status > 0 ? 'block' : 'none' }">
+                        <source src="${audioUpload.audioUrl}" type="audio/wav">
+                    </audio>
+                    <button class="btn btn-link" style="display: ${ audioUpload.status > 1 ? 'block' : 'none' }">Transcription</button>
+                </td>
+            </tr>
+        `);
     }
 
     function getBase64(file) {
