@@ -4,6 +4,7 @@ services:
         image: czarpino/symfony:4.1
         volumes:
             - ./:/mnt/app
+            - ./var/data/key.json:/mnt/key.json
         ports:
             - "8000:8000"
         working_dir: /mnt/app

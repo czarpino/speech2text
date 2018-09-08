@@ -8,6 +8,9 @@ parameters:
     security.random.default_string_length: 16
     filesystem.tmp_chunk_dir: '%kernel.project_dir%/var/tmp/chunk'
     filesystem.tmp_audio_dir: '%kernel.project_dir%/var/tmp/audio'
+    filesystem.web_audio_dir: '%kernel.project_dir%/public/audio'
+    googlecloud.storage.default_bucket: 'developer-test-1'
+
 
 services:
     # default configuration for services in *this* file
@@ -37,3 +40,9 @@ services:
         arguments:
             $chunkDataDir: '%filesystem.tmp_chunk_dir%'
 
+    Google\Cloud\Storage\StorageClient:
+        arguments: ~
+
+    Google\Cloud\Storage\Bucket:
+        factory: 'Google\Cloud\Storage\StorageClient:bucket'
+        arguments: ['%googlecloud.storage.default_bucket%']

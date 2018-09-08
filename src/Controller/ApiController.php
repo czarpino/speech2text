@@ -10,6 +10,7 @@ use App\Form\Type\AudioUploadInputType;
 use App\Repository\AudioUploadRepository;
 use App\Security\Random\RandomStringGenerator;
 use Doctrine\ORM\EntityManagerInterface;
+use Google\Cloud\Storage\Bucket;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -126,6 +127,7 @@ class ApiController extends AbstractController
      * @param ChunkMerger $chunkMerger
      * @param Filesystem $filesystem
      * @param EntityManagerInterface $em
+     * @param Bucket $googleStorageBucket
      *
      * @return JsonResponse
      */
@@ -134,7 +136,8 @@ class ApiController extends AbstractController
         AudioUploadRepository $audioUploadRepository,
         ChunkMerger $chunkMerger,
         Filesystem $filesystem,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        Bucket $googleStorageBucket
     ) {
         $audioUpload = $audioUploadRepository->find($request->request->get('upload_id'));
 
@@ -145,13 +148,15 @@ class ApiController extends AbstractController
         $audioData = $chunkMerger->merge($audioUpload->getAudioUploadChunks()->toArray());
         $rawAudioData = base64_decode($audioData);
 
-        $filesystem->dumpFile(
-            $this->getParameter('filesystem.tmp_audio_dir') . '/' . $audioUpload->getFilename(),
-            $rawAudioData
-        );
+        $filepath = $this->getParameter('filesystem.tmp_audio_dir') . '/' . $audioUpload->getFilename();
+        $filesystem->dumpFile($filepath, $rawAudioData);
 
-        // TODO save to google storage
-        // $location = $googleStorageService->save($file);
+        // Upload to Google storage
+        $googleStorageBucket->upload(fopen($filepath, 'r'));
+
+        // Move to public dir
+        $filesystem->copy($filepath, $this->getParameter('filesystem.web_audio_dir') . '/' . $audioUpload->getFilename());
+        $filesystem->remove($filepath);
 
         $chunkFiles = [];
         $audioUpload->setStatus(AudioUpload::UPLOAD_STATUS_UPLOADED);

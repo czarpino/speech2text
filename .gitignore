@@ -16,3 +16,4 @@
 ###< symfony/web-server-bundle ###
 
 .idea/*
+public/audio/*
