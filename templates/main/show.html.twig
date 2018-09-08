@@ -18,23 +18,37 @@
 
         <table id="mytable" class="table table-bordred table-striped">
             <thead>
-                <th><input type="checkbox" id="checkall" /></th>
-                <th>Filename</th>
+                <th><input type="checkbox"></th>
+                <th width="30%">Filename</th>
                 <th>Upload Date</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th width="25%">Actions</th>
             </thead>
             <tbody class="js-upload-list">
-                <tr>
-                    <td><input type="checkbox" class="checkthis" /></td>
-                    <td>Mohsin</td>
-                    <td>{{ ''|date  }}</td>
-                    <td>Processing</td>
-                    <td>
-                        <button class="btn btn-primary">Play</button>
-                        <button class="btn btn-link">Transcription</button>
-                    </td>
-                </tr>
+                {% for audioUpload in audioUploads %}
+                    <tr>
+                        <td><input type="checkbox" value="{{ audioUpload.id }}"></td>
+                        <td>{{ audioUpload.filename }}</td>
+                        <td>{{ audioUpload.uploadDate|date('Y-m-d H:i:s')  }}</td>
+                        <td>{{ audioUpload.statusName }}</td>
+                        <td>
+                            {% if audioUpload.status > 0 %}
+                                <button class="btn btn-primary">Play</button>
+                            {% endif %}
+                            {% if audioUpload.status > 1 %}
+                                <button class="btn btn-link">Trans</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td></td>
+                        <td>No audio uploads yet</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </section>

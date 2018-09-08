@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 
+use App\Repository\AudioUploadRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +23,13 @@ class MainController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function show(Request $request)
+    public function show(Request $request, AudioUploadRepository $audioUploadRepository)
     {
-        return $this->render('main/show.html.twig');
+        return $this->render('main/show.html.twig', [
+            'audioUploads' => $audioUploadRepository->findBy(
+                ['isDeleted' => 0],
+                ['uploadDate' => 'desc']
+            )
+        ]);
     }
 }
