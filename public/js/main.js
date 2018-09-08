@@ -17,12 +17,6 @@
 
                 let base64Promise = getBase64(fileInput.files[0]);
                 base64Promise.then(function () { fileInput.value = ''; });
-                base64Promise.finally(function () {
-
-                    // Show button
-                    $('.js-file-processing').hide();
-                    $('.js-file-upload').show();
-                });
                 startUpload(base64Promise, fileInput.files[0].name);
             }
         });
@@ -30,71 +24,98 @@
 
     function startUpload(base64Promise, filename) {
         base64Promise.then(function (audioData) {
-            $.post('/api/audio/upload').done(function (data) {
-                let $shadow = insertShadowRow(data.id, filename);
+            let $shadow = insertShadowRow();
 
-                let chunkSize = 524288;
-                let dataLength = audioData.length;
-                let doneCount = 0;
+            $.post('/api/audio/upload', {
+                'filename': filename
+            }, function (res, status, xhr) {
+                // insertAudioRow(xhr.getResponseHeader('Location'), $shadow);
 
-                for (let i = 0; i * chunkSize < dataLength; i ++) {
-                    let startIdx = i * chunkSize;
+                $.get(xhr.getResponseHeader('Location')).done(function (data) {
+                    $newRow = $(`
+                        <tr>
+                            <td><input type="checkbox" class="checkthis"/></td>
+                            <td>${data.filename}</td>
+                            <td>${data.uploadDate}</td>
+                            <td>${data.statusName}</td>
+                            <td>
+                                <button class="btn btn-primary" style="display: ${ data.status > 0 ? 'block' : 'none' }">Play</button>
+                                <button class="btn btn-link" style="display: ${ data.status > 1 ? 'block' : 'none' }">Transcription</button>
+                            </td>
+                        </tr>
+                    `);
 
-                    $.post('/api/audio/chunk', {
-                        'upload_id': data.id,
-                        'audio_data': audioData.substring(startIdx, startIdx + chunkSize),
-                        'order': i + 1
-                    }).done(function (data) {
-                        doneCount ++;
-                        if (dataLength <= doneCount * chunkSize) {
+                    $shadow.replaceWith($newRow);
+                    $shadow = $newRow;
 
-                            // All chunks have been sent. Send merge request.
-                            $.post('/api/audio/merge', {
-                                'upload_id': data.id
-                            }).done(function () {
+                    let uploadId = res.id;
+                    let chunkSize = 524288; // ~500Kb
+                    let dataLength = audioData.length;
+                    let doneCount = 0;
 
-                                insertNewAudio($shadow, data.id);
+                    for (let i = 0; i * chunkSize < dataLength; i ++) {
+                        let startIdx = i * chunkSize;
 
-                                // TODO insert new row or reload
-                                console.log('Chunks have merged. Page may be reloaded.');
-                            });
-                        }
-                    });
-                }
+                        $.post('/api/audio/chunk', {
+                            'upload_id': uploadId,
+                            'order': i + 1,
+                            'audio_data': audioData.substring(startIdx, startIdx + chunkSize),
+                        }).done(function () {
+                            doneCount ++;
+                            if (dataLength <= doneCount * chunkSize) {
+
+                                // All chunks have been sent. Send merge request.
+                                $.post('/api/audio/merge', {
+                                    'upload_id': uploadId
+                                }, function (res, status, xhr) {
+                                    insertAudioRow(xhr.getResponseHeader('Location'), $shadow);
+                                });
+                            }
+                        });
+                    }
+
+                    // Show upload button
+                    $('.js-file-processing').hide();
+                    $('.js-file-upload').show();
+                });
             });
         });
     }
 
-    function insertShadowRow(uploadId, filename) {
-        let $shadow = $(`
+    function insertShadowRow() {
+        let $shadowNew = $(`
             <tr>
                 <td><input type="checkbox" class="checkthis" disabled/></td>
-                <td>${filename.substring(0, 8)}...</td>
-                <td>-</td>
-                <td>Uploading...</td>
-                <td>-</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
             </tr>
         `);
 
-        $('.js-upload-list').append($shadow);
+        $('.js-upload-list').append($shadowNew);
 
-        return $shadow;
+        return $shadowNew;
     }
 
-    function insertNewAudio($shadow, uploadId) {
-        // TODO fetch by id
-        return $shadow.replaceWith(`
-            <tr>
-                <td><input type="checkbox" class="checkthis"/></td>
-                <td>Fooo</td>
-                <td>Today</td>
-                <td>Transcribing</td>
-                <td>
-                    <button class="btn btn-primary">Play</button>
-                    <button class="btn btn-link">Transcription</button>
-                </td>
-            </tr>
-        `);
+    function insertAudioRow(location, $shadow) {
+        $.get(location).done(function (data) {
+            $newRow = $(`
+                <tr>
+                    <td><input type="checkbox" class="checkthis"/></td>
+                    <td>${data.filename}</td>
+                    <td>${data.uploadDate}</td>
+                    <td>${data.statusName}</td>
+                    <td>
+                        <button class="btn btn-primary" style="display: ${ data.status > 0 ? 'block' : 'none' }">Play</button>
+                        <button class="btn btn-link" style="display: ${ data.status > 1 ? 'block' : 'none' }">Transcription</button>
+                    </td>
+                </tr>
+            `);
+
+            $shadow.replaceWith($newRow);
+            $shadow = $newRow;
+        });
     }
 
     function getBase64(file) {

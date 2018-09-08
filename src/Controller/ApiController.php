@@ -1,18 +1,23 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: czar
- * Date: 08/09/2018
- * Time: 9:44 AM
- */
 
 namespace App\Controller;
 
-
+use App\AudioUpload\ChunkMerger;
+use App\Entity\AudioUpload;
+use App\Entity\AudioUploadChunk;
+use App\Form\Type\AudioUploadChunkInputType;
+use App\Form\Type\AudioUploadInputType;
+use App\Repository\AudioUploadRepository;
+use App\Security\Random\RandomStringGenerator;
+use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class ApiController
@@ -27,14 +32,39 @@ class ApiController extends AbstractController
      * Initiate audio upload
      *
      * @Route("/audio/upload", methods={"POST"})
+     *
      * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param ValidatorInterface $validator
+     *
      * @return JsonResponse
      */
-    public function audioUpload(Request $request)
-    {
-        // TODO Create database entry audio_uploads
+    public function audioUpload(
+        Request $request,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator
+    ) {
+        $audioUpload = new AudioUpload();
+        $form = $this->createForm(AudioUploadInputType::class, $audioUpload);
+        $form->handleRequest($request);
+
+        $errors = $validator->validate($audioUpload);
+        if (0 < $errors->count()) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return new JsonResponse(['errors' => $errorMessages], 400);
+        }
+
+        $em->persist($audioUpload);
+        $em->flush();
+
         return new JsonResponse([
-            'id' => '1'
+            'id' => $audioUpload->getId()
+        ], 201, [
+            'Location' => $this->generateUrl('api_get_audio', ['id' => $audioUpload->getId()])
         ]);
     }
 
@@ -42,30 +72,119 @@ class ApiController extends AbstractController
      * Upload audio chunks
      *
      * @Route("/audio/chunk", methods={"POST"})
+     *
      * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param ValidatorInterface $validator
+     * @param RandomStringGenerator $randomStringGenerator
+     * @param Filesystem $filesystem
      * @return JsonResponse
      */
-    public function audioChunk(Request $request)
-    {
-        // TODO Create database entry audio_chunks with order & filenames
-        return new JsonResponse($request->request->all());
+    public function audioChunk(
+        Request $request,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator,
+        RandomStringGenerator $randomStringGenerator,
+        Filesystem $filesystem
+    ) {
+        $audioUploadChunk = new AudioUploadChunk();
+        $form = $this->createForm(AudioUploadChunkInputType::class, $audioUploadChunk, ['method' => 'POST']);
+        $form->handleRequest($request);
+
+        $errors = $validator->validate($audioUploadChunk);
+        if (0 < $errors->count()) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+
+            return new JsonResponse(['errors' => $errorMessages], 400);
+        }
+
+        $audioUploadChunk->setFilename($randomStringGenerator->generate(
+            $this->getParameter('security.random.default_string_length')
+        ));
+
+        $filesystem->dumpFile(
+            $this->getParameter('filesystem.tmp_chunk_dir') . '/' . $audioUploadChunk->getFilename(),
+            $audioUploadChunk->getAudioData()
+        );
+
+        $em->persist($audioUploadChunk);
+        $em->flush();
+
+        return new JsonResponse();
     }
 
     /**
      * Merge uploaded chunks
      *
      * @Route("/audio/merge", methods={"POST"})
+     *
      * @param Request $request
+     * @param AudioUploadRepository $audioUploadRepository
+     * @param ChunkMerger $chunkMerger
+     * @param Filesystem $filesystem
+     * @param EntityManagerInterface $em
+     *
      * @return JsonResponse
      */
-    public function audioMerge(Request $request)
-    {
-        // TODO Merge files
-        // TODO On success, upload to cloud storage
-        // TODO Update audio_uploads status 0: uploading, 1: uploaded, 2: transcribed
-        return new JsonResponse([
-            'id' => '1',
-            'location' => 'http://example.com/resource'
+    public function audioMerge(
+        Request $request,
+        AudioUploadRepository $audioUploadRepository,
+        ChunkMerger $chunkMerger,
+        Filesystem $filesystem,
+        EntityManagerInterface $em
+    ) {
+        $audioUpload = $audioUploadRepository->find($request->request->get('upload_id'));
+
+        if (!$audioUpload) {
+            throw $this->createNotFoundException();
+        }
+
+        $audioData = $chunkMerger->merge($audioUpload->getAudioUploadChunks()->toArray());
+        $rawAudioData = base64_decode($audioData);
+
+        $filesystem->dumpFile(
+            $this->getParameter('filesystem.tmp_audio_dir') . '/' . $audioUpload->getFilename(),
+            $rawAudioData
+        );
+
+        // TODO save to google storage
+        // $location = $googleStorageService->save($file);
+
+        $chunkFiles = [];
+        $audioUpload->setStatus(AudioUpload::UPLOAD_STATUS_UPLOADED);
+        foreach ($audioUpload->getAudioUploadChunks() as $chunk) {
+            $chunkFiles[] = $this->getParameter('filesystem.tmp_chunk_dir') . '/' . $chunk->getFilename();
+            $audioUpload->removeAudioUploadChunk($chunk);
+        }
+
+        $filesystem->remove($chunkFiles);
+        $em->flush();
+
+        return new JsonResponse([], 201, [
+            'Location' => $this->generateUrl('api_get_audio', ['id' => $audioUpload->getId()])
         ]);
+    }
+
+    /**
+     * Merge uploaded chunks
+     *
+     * @Route("/audio/{id}", name="api_get_audio", methods={"GET"})
+     * @ParamConverter("audioUpload", class="App\Entity\AudioUpload")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function getAudio(AudioUpload $audioBundle, SerializerInterface $serializer)
+    {
+        return new JsonResponse(
+            $serializer->serialize($audioBundle, 'json', ['groups' => ['rest']]),
+            200,
+            [],
+            true
+        );
     }
 }
