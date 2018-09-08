@@ -11,14 +11,14 @@
                     <button style="display: none;" class="btn btn-sm btn-success js-file-processing" disabled>Processing...</button>
                     <button class="btn btn-sm btn-success js-file-upload">Upload</button>
                     <input class="js-file-select" type="file" id="file-input" style="display:none;">
-                    <button class="btn btn-sm btn-danger">Delete</button>
+                    <button class="btn btn-sm btn-danger js-delete-audio">Delete</button>
                 </div>
             </div>
         </div>
 
         <table id="mytable" class="table table-bordred table-striped">
             <thead>
-                <th><input type="checkbox"></th>
+                <th><input type="checkbox" class="js-audio-header-check"></th>
                 <th width="30%">Filename</th>
                 <th>Upload Date</th>
                 <th>Status</th>
@@ -27,7 +27,7 @@
             <tbody class="js-upload-list">
                 {% for audioUpload in audioUploads %}
                     <tr>
-                        <td><input type="checkbox" value="{{ audioUpload.id }}"></td>
+                        <td><input class="js-audio-row-check" type="checkbox" value="{{ audioUpload.id }}"></td>
                         <td>{{ audioUpload.filename }}</td>
                         <td>{{ audioUpload.uploadDate|date('Y-m-d H:i:s')  }}</td>
                         <td>{{ audioUpload.statusName }}</td>

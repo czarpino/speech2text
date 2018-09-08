@@ -20,6 +20,26 @@
                 startUpload(base64Promise, fileInput.files[0].name);
             }
         });
+
+        // Select all
+        $('.js-audio-header-check').off('click').on('click', function (e) {
+            $('.js-audio-row-check').prop('checked', $(this).prop('checked'));
+        });
+
+        // Delete
+        $('.js-delete-audio').off('click').on('click', function (e) {
+            $('.js-audio-row-check:checked').each(function (idx, row) {
+                let $audioRow = $(row).closest('tr');
+
+                $audioRow.css('background-color', 'rgba(200,0,0,0.05)');
+                $.ajax({
+                    url: '/api/audio/' + row.value,
+                    type: 'DELETE'
+                }).done(function (data) {
+                    $audioRow.remove();
+                });
+            });
+        });
     });
 
     function startUpload(base64Promise, filename) {
@@ -29,8 +49,6 @@
             $.post('/api/audio/upload', {
                 'filename': filename
             }, function (res, status, xhr) {
-                // insertAudioRow(xhr.getResponseHeader('Location'), $shadow);
-
                 $.get(xhr.getResponseHeader('Location')).done(function (data) {
                     $newRow = createAudioRow(data);
                     $shadow.replaceWith($newRow);

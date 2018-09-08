@@ -174,7 +174,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * Merge uploaded chunks
+     * Get Audio
      *
      * @Route("/audio/{id}", name="api_get_audio", methods={"GET"})
      * @ParamConverter("audioUpload", class="App\Entity\AudioUpload")
@@ -194,5 +194,30 @@ class ApiController extends AbstractController
             [],
             true
         );
+    }
+
+    /**
+     * Delete Audio
+     *
+     * @Route("/audio/{id}", name="api_get_audio", methods={"DELETE"})
+     * @ParamConverter("audioUpload", class="App\Entity\AudioUpload")
+     *
+     * @param AudioUpload $audioUpload
+     * @param EntityManagerInterface $em
+     *
+     * @return JsonResponse
+     */
+    public function deleteAudio(AudioUpload $audioUpload, EntityManagerInterface $em)
+    {
+        $chunkFiles = [];
+        $audioUpload->setIsDeleted(true);
+        foreach ($audioUpload->getAudioUploadChunks() as $chunk) {
+            $chunkFiles[] = $this->getParameter('filesystem.tmp_chunk_dir') . '/' . $chunk->getFilename();
+            $audioUpload->removeAudioUploadChunk($chunk);
+        }
+
+        $em->flush();
+
+        return new JsonResponse();
     }
 }
