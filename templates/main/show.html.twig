@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <section class="container mt-3">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col col-xs-6">
+                    <h3 class="panel-title">Text2Speech API</h3>
+                </div>
+                <div class="col col-xs-6 text-right">
+                    <button class="btn btn-sm btn-success">Upload</button>
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <table id="mytable" class="table table-bordred table-striped">
+            <thead>
+                <th><input type="checkbox" id="checkall" /></th>
+                <th>Filename</th>
+                <th>Upload Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="checkbox" class="checkthis" /></td>
+                    <td>Mohsin</td>
+                    <td>{{ ''|date  }}</td>
+                    <td>Processing</td>
+                    <td>
+                        <button class="btn btn-primary">Play</button>
+                        <button class="btn btn-link">Transcription</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+{% endblock %}
