@@ -8,7 +8,9 @@
                     <h3 class="panel-title">Text2Speech API</h3>
                 </div>
                 <div class="col col-xs-6 text-right">
-                    <button class="btn btn-sm btn-success">Upload</button>
+                    <button style="display: none;" class="btn btn-sm btn-success js-file-processing" disabled>Processing...</button>
+                    <button class="btn btn-sm btn-success js-file-upload">Upload</button>
+                    <input class="js-file-select" type="file" id="file-input" style="display:none;">
                     <button class="btn btn-sm btn-danger">Delete</button>
                 </div>
             </div>
@@ -22,7 +24,7 @@
                 <th>Status</th>
                 <th>Actions</th>
             </thead>
-            <tbody>
+            <tbody class="js-upload-list">
                 <tr>
                     <td><input type="checkbox" class="checkthis" /></td>
                     <td>Mohsin</td>
@@ -36,4 +38,9 @@
             </tbody>
         </table>
     </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/main.js') }}"></script>
 {% endblock %}
