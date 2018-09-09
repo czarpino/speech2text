@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: czar
- * Date: 08/09/2018
- * Time: 6:42 PM
- */
 
 namespace App\AudioUpload;
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: czar
- * Date: 08/09/2018
- * Time: 5:36 PM
- */
 
 namespace App\Security\Random;
 

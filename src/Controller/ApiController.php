@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\AudioUpload\ChunkMerger;
-use App\Enqueue\TranscriptionProcessor;
 use App\Entity\AudioUpload;
 use App\Entity\AudioUploadChunk;
 use App\Form\Type\AudioUploadChunkInputType;
@@ -174,7 +173,7 @@ class ApiController extends AbstractController
         $producer->sendEvent('transcribe', [
             'id' => $audioUpload->getId()
         ]);
-        
+
         return new JsonResponse([], 201, [
             'Location' => $this->generateUrl('api_get_audio', ['id' => $audioUpload->getId()])
         ]);
