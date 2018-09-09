@@ -13,15 +13,15 @@ On local:
     ```bash
     # Bring up network
     docker-compose up -d
+ 
+    # Move inside app container
+    docker-compose exec app sh
     
     # Install dependencies
     composer install
     
-    # Move inside app container
-    docker-compose exec app sh
-    
     # Create database schema
-    ./bin/console --no-interaction doctrine:migrations:migrate#
+    ./bin/console --no-interaction doctrine:migrations:migrate
  
     # Install 3rd party assets
     ./bin/console assets:install public
