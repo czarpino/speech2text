@@ -7,7 +7,8 @@ A simple program to convert audio speech to text.
 On local:
 
 1. Add `www.speech2text.com` to your `/etc/hosts`
-2. Bring up docker-compose network & setup
+2. Copy Google Cloud `key.json` into `var/data/key.json`
+3. Bring up docker-compose network & setup
 
     ```bash
     # Bring up network
@@ -27,4 +28,8 @@ On local:
  
     ```
 
-3. Visit `http://www.speech2text.com`.
+4. Visit `http://www.speech2text.com`.
+
+### Sequence
+
+![](sequence.png)
