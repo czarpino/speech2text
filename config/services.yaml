@@ -54,9 +54,6 @@ services:
         arguments: ['%googlecloud.storage.default_bucket%']
 
     App\EventListener\PostLoadSubscriber:
-        arguments:
-            $webAudioDir: '%filesystem.web_audio_dir%'
-            $webTransDir: '%filesystem.web_trans_dir%'
         tags:
             - { name: doctrine.event_subscriber, connection: default }
 

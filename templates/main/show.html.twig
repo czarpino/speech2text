@@ -38,7 +38,7 @@
                                 </audio>
                             {% endif %}
                             {% if audioUpload.status > 1 %}
-                                <button class="btn btn-link">Transcription</button>
+                                <a class="btn btn-link" href="{{ audioUpload.transcriptionUrl }}" target="_blank">Transcription</a>
                             {% endif %}
                         </td>
                     </tr>
