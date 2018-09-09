@@ -6,15 +6,20 @@ services:
         volumes:
             - ./:/mnt/app
             - ./var/data/key.json:/mnt/key.json
-        ports:
-            - "8000:8000"
         working_dir: /mnt/app
-        command: "bin/console server:run 0.0.0.0:8000"
-        env_file:
-            - .env
+
+    queue:
+        image: speech2text
+        build: ./docker
+        volumes:
+            - ./:/mnt/app
+            - ./var/data/key.json:/mnt/key.json
+        working_dir: /mnt/app
+        command: "bin/console enqueue:consume --setup-broker -vvv"
 
     mysql:
         image: mysql:5.7
+        restart: always
         volumes:
             - mysql-data:/var/lib/mysql
         environment:
@@ -23,6 +28,19 @@ services:
 
     redis:
         image: redis:4.0
+
+    server:
+        image: nginx:1.15-alpine
+        volumes:
+            - ./docker/nginx/template.nginx.conf:/etc/nginx/conf.d/template.nginx
+            - ./public:/mnt/app/public
+        ports:
+            - "80:80"
+        environment:
+            - NGINX_HOST=www.speech2text.com
+            - NGINX_PORT=80
+        command: /bin/sh -c "envsubst '$$NGINX_HOST $$NGINX_PORT' < /etc/nginx/conf.d/template.nginx > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+
 
 volumes:
     mysql-data: ~
