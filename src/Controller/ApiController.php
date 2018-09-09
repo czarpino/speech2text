@@ -199,7 +199,7 @@ class ApiController extends AbstractController
     /**
      * Delete Audio
      *
-     * @Route("/audio/{id}", name="api_get_audio", methods={"DELETE"})
+     * @Route("/audio/{id}", name="api_delete_audio", methods={"DELETE"})
      * @ParamConverter("audioUpload", class="App\Entity\AudioUpload")
      *
      * @param AudioUpload $audioUpload
