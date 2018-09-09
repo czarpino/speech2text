@@ -2,20 +2,43 @@ version: '3'
 services:
     app:
         image: speech2text
+        restart: always
         build: ./docker
         volumes:
             - ./:/mnt/app
             - ./var/data/key.json:/mnt/key.json
         working_dir: /mnt/app
+        environment:
+            WS_PORT: 3000
+            WS_HOST: ws
 
     queue:
         image: speech2text
+        restart: always
         build: ./docker
         volumes:
             - ./:/mnt/app
             - ./var/data/key.json:/mnt/key.json
         working_dir: /mnt/app
+        environment:
+          WS_PORT: 3000
+          WS_HOST: ws
         command: "bin/console enqueue:consume --setup-broker -vvv"
+
+    ws:
+        image: speech2text
+        restart: always
+        build: ./docker
+        volumes:
+            - ./:/mnt/app
+            - ./var/data/key.json:/mnt/key.json
+        ports:
+            - "3000:3000"
+        working_dir: /mnt/app
+        environment:
+            WS_PORT: 3000
+            WS_HOST: 0.0.0.0
+        command: "bin/console gos:websocket:server"
 
     mysql:
         image: mysql:5.7
@@ -28,6 +51,7 @@ services:
 
     redis:
         image: redis:4.0
+        restart: always
 
     server:
         image: nginx:1.15-alpine

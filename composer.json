@@ -10,6 +10,7 @@
         "enqueue/redis": "^0.8.23",
         "google/cloud-speech": "^0.16.2",
         "google/cloud-storage": "^1.7",
+        "gos/web-socket-bundle": "^1.8",
         "predis/predis": "^1",
         "sensio/framework-extra-bundle": "^5.2",
         "symfony/asset": "*",

@@ -20,7 +20,11 @@ On local:
     docker-compose exec app sh
     
     # Create database schema
-    ./bin/console --no-interaction doctrine:migrations:migrate
+    ./bin/console --no-interaction doctrine:migrations:migrate#
+ 
+    # Install 3rd party assets
+    ./bin/console assets:install public
+ 
     ```
 
 3. Visit `http://www.speech2text.com`.

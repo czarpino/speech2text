@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, WS) {
     $(function () {
 
         // Open file selector
@@ -40,6 +40,18 @@
                 });
             });
         });
+
+        // Setup websocket for push
+        let websocket = WS.connect(_WS_URI);
+        websocket.on("socket/connect", function(session){
+            console.log("Successfully Connected!");
+
+            session.subscribe("transcription/channel", function (uri, payload){
+                let data = JSON.parse(payload.data);
+                console.log(payload);
+                insertAudioRow('/api/audio/' + data.id, $('.js-row-' + data.id));
+            });
+        })
     });
 
     function startUpload(base64Promise, filename) {
@@ -114,7 +126,7 @@
     function createAudioRow(audioUpload)
     {
         return $(`
-            <tr>
+            <tr class="js-row-${audioUpload.id}">
                 <td><input type="checkbox" class="checkthis"/></td>
                 <td>${audioUpload.filename}</td>
                 <td>${audioUpload.uploadDate}</td>
@@ -123,7 +135,7 @@
                     <audio controls style="display: ${ audioUpload.status > 0 ? 'block' : 'none' }">
                         <source src="${audioUpload.audioUrl}" type="audio/wav">
                     </audio>
-                    <button class="btn btn-link" style="display: ${ audioUpload.status > 1 ? 'block' : 'none' }">Transcription</button>
+                    <a class="btn btn-link" href="${audioUpload.transcriptionUrl}" target="_blank" style="${ audioUpload.status > 1 ? '' : 'display: none;' }">Transcription</a>
                 </td>
             </tr>
         `);
@@ -141,4 +153,4 @@
             };
         });
     }
-})(window.jQuery);
+})(window.jQuery, window.WS);

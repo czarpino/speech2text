@@ -73,3 +73,15 @@ services:
             $projectDir: '%kernel.project_dir%'
         tags:
             - { name: enqueue.client.processor }
+
+    App\WsTopic\TranscriptionTopic:
+        tags:
+            - { name: gos_web_socket.topic }
+
+
+    Gos\Bundle\WebSocketBundle\Pusher\PusherInterface:
+        alias: gos_web_socket.wamp.pusher
+
+#    Gos\Bundle\WebSocketBundle\Pusher\Wamp\WampPusher:
+#        tags:
+#            - { name: gos_web_socket.pusher, alias: wamp }

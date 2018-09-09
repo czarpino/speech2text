@@ -1,0 +1,4 @@
+transcription_topic:
+    channel: transcription/channel
+    handler:
+        callback: 'transcription.topic'

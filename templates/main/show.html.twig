@@ -26,7 +26,7 @@
             </thead>
             <tbody class="js-upload-list">
                 {% for audioUpload in audioUploads %}
-                    <tr>
+                    <tr class="js-row-{{ audioUpload.id }}">
                         <td><input class="js-audio-row-check" type="checkbox" value="{{ audioUpload.id }}"></td>
                         <td>{{ audioUpload.filename }}</td>
                         <td>{{ audioUpload.uploadDate|date('Y-m-d H:i:s')  }}</td>
@@ -58,5 +58,10 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="bundles/goswebsocket/js/gos_web_socket_client.js"></script>
+    <script src="bundles/goswebsocket/js/vendor/autobahn.min.js"></script>
+    <script type="text/javascript">
+        var _WS_URI = "ws://127.0.0.1:{{ gos_web_socket_server_port }}";
+    </script>
     <script src="{{ asset('js/main.js') }}"></script>
 {% endblock %}

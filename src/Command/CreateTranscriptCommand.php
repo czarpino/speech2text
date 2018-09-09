@@ -11,6 +11,7 @@ use Google\Cloud\Core\ExponentialBackoff;
 use Google\Cloud\Speech\Result;
 use Google\Cloud\Speech\SpeechClient;
 use Google\Cloud\Storage\Bucket;
+use Gos\Bundle\WebSocketBundle\Pusher\PusherInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -68,6 +69,11 @@ class CreateTranscriptCommand extends Command
     private $filesystem;
 
     /**
+     * @var PusherInterface
+     */
+    private $pusher;
+
+    /**
      * CreateTranscriptCommand constructor.
      * @param AudioUploadRepository $audioUploadRepository
      * @param Bucket $googleCloudStorageBucket
@@ -78,6 +84,7 @@ class CreateTranscriptCommand extends Command
      * @param string $webTransDir
      * @param RandomStringGenerator $randomStringGenerator
      * @param Filesystem $filesystem
+     * @param PusherInterface $pusher
      */
     public function __construct(
         AudioUploadRepository $audioUploadRepository,
@@ -88,7 +95,8 @@ class CreateTranscriptCommand extends Command
         string $tmpTransDir,
         string $webTransDir,
         RandomStringGenerator $randomStringGenerator,
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        PusherInterface $pusher
     ) {
         parent::__construct();
 
@@ -101,6 +109,7 @@ class CreateTranscriptCommand extends Command
         $this->webTransDir = $webTransDir;
         $this->randomStringGenerator = $randomStringGenerator;
         $this->filesystem = $filesystem;
+        $this->pusher = $pusher;
     }
 
     /**
@@ -158,7 +167,7 @@ class CreateTranscriptCommand extends Command
         $operation = $this->googleCloudSpeechClient->beginRecognizeOperation($flacObject);
 
         // Wait for the operation to complete
-        $backoff = new ExponentialBackoff(10);
+        $backoff = new ExponentialBackoff(20);
         $backoff->execute(function () use ($operation) {
             print('Waiting for operation to complete' . PHP_EOL);
             $operation->reload();
@@ -197,6 +206,9 @@ class CreateTranscriptCommand extends Command
 
         // Cleanup
         $this->filesystem->remove($tmpFiles);
+
+        // Notify client
+        $this->pusher->push(['id' => $audioUpload->getId()], 'transcription_topic');
     }
 
     private function generateRandomFileName($length, $extension)

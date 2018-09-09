@@ -15,4 +15,6 @@ return [
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\WebServerBundle\WebServerBundle::class => ['dev' => true],
     Enqueue\Bundle\EnqueueBundle::class => ['all' => true],
+    Gos\Bundle\PubSubRouterBundle\GosPubSubRouterBundle::class => ['all' => true],
+    Gos\Bundle\WebSocketBundle\GosWebSocketBundle::class => ['all' => true],
 ];

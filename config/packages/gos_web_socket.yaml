@@ -1,0 +1,11 @@
+gos_web_socket:
+    server:
+        port: '%env(WS_PORT)%'   #The port the socket server will listen on
+        host: '%env(WS_HOST)%'   #The host ip to bind to
+        router:
+            resources:
+                - pubsub.yaml
+    pushers:
+        wamp:
+            host: '%env(WS_HOST)%'
+            port: '%env(WS_PORT)%'
