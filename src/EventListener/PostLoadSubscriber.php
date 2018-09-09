@@ -9,14 +9,19 @@ use Symfony\Component\Asset\Packages;
 
 class PostLoadSubscriber implements EventSubscriber
 {
-    /**
-     * @var Packages
-     */
-    private $packages;
+    private $webAudioDir;
 
-    public function __construct(Packages $packages)
+    private $webTransDir;
+
+    /**
+     * PostLoadSubscriber constructor.
+     * @param string $webAudioDir
+     * @param string $webTransDir
+     */
+    public function __construct(string $webAudioDir, string $webTransDir)
     {
-        $this->packages = $packages;
+        $this->webAudioDir = $webAudioDir;
+        $this->webTransDir = $webTransDir;
     }
 
     public function getSubscribedEvents()
@@ -29,8 +34,17 @@ class PostLoadSubscriber implements EventSubscriber
         $entity = $args->getObject();
 
         if ($entity instanceof AudioUpload) {
-            $url = $this->packages->getUrl('audio/' . $entity->getFilename());
-            $entity->setAudioUrl($url);
+            if ($entity->getFilename()) {
+                $entity->setAudioUrl(
+                    $this->webAudioDir . '/' . $entity->getFilename()
+                );
+            }
+
+            if ($entity->getTranscriptionFilename()) {
+                $entity->setTranscriptionUrl(
+                    $this->webTransDir . '/' . $entity->getTranscriptionFilename()
+                );
+            }
         }
     }
 }

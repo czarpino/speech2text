@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "google/cloud-speech": "^0.16.2",
         "google/cloud-storage": "^1.7",
         "sensio/framework-extra-bundle": "^5.2",
         "symfony/asset": "*",

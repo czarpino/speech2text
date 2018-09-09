@@ -67,6 +67,53 @@ class AudioUpload
     private $audioUrl;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"rest"})
+     *
+     * @var string
+     */
+    private $transcriptionFilename;
+
+    /**
+     * @Groups({"rest"})
+     *
+     * @var string
+     */
+    private $transcriptionUrl;
+
+    /**
+     * @return string
+     */
+    public function getTranscriptionUrl(): ?string
+    {
+        return $this->transcriptionUrl;
+    }
+
+    /**
+     * @param string $transcriptionUrl
+     */
+    public function setTranscriptionUrl(string $transcriptionUrl): void
+    {
+        $this->transcriptionUrl = $transcriptionUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTranscriptionFilename(): ?string
+    {
+        return $this->transcriptionFilename;
+    }
+
+    /**
+     * @param string $transcriptionFilename
+     */
+    public function setTranscriptionFilename(string $transcriptionFilename): void
+    {
+        $this->transcriptionFilename = $transcriptionFilename;
+    }
+
+    /**
      * @return string
      */
     public function getAudioUrl(): string

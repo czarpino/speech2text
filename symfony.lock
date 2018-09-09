@@ -80,6 +80,21 @@
     "fig/link-util": {
         "version": "1.0.0"
     },
+    "google/cloud-speech": {
+        "version": "v0.16.2"
+    },
+    "google/gax": {
+        "version": "0.37.0"
+    },
+    "google/grpc-gcp": {
+        "version": "0.1.2"
+    },
+    "google/protobuf": {
+        "version": "v3.6.1"
+    },
+    "grpc/grpc": {
+        "version": "1.13.0"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },

@@ -8,7 +8,9 @@ parameters:
     security.random.default_string_length: 16
     filesystem.tmp_chunk_dir: '%kernel.project_dir%/var/tmp/chunk'
     filesystem.tmp_audio_dir: '%kernel.project_dir%/var/tmp/audio'
+    filesystem.tmp_trans_dir: '%kernel.project_dir%/var/tmp/trans'
     filesystem.web_audio_dir: '%kernel.project_dir%/public/audio'
+    filesystem.web_trans_dir: '%kernel.project_dir%/public/trans'
     googlecloud.storage.default_bucket: 'developer-test-1'
 
 
@@ -43,15 +45,28 @@ services:
     Google\Cloud\Storage\StorageClient:
         arguments: ~
 
+    Google\Cloud\Speech\SpeechClient:
+        arguments:
+            - languageCode: 'en-US'
+
     Google\Cloud\Storage\Bucket:
         factory: 'Google\Cloud\Storage\StorageClient:bucket'
         arguments: ['%googlecloud.storage.default_bucket%']
 
     App\EventListener\PostLoadSubscriber:
+        arguments:
+            $webAudioDir: '%filesystem.web_audio_dir%'
+            $webTransDir: '%filesystem.web_trans_dir%'
         tags:
-        - { name: doctrine.event_subscriber, connection: default }
+            - { name: doctrine.event_subscriber, connection: default }
 
     Symfony\Component\Serializer\Normalizer\DateTimeNormalizer:
         public: false
         tags: [serializer.normalizer]
         arguments: ['Y-m-d H:i:s']
+
+    App\Command\CreateTranscriptCommand:
+        arguments:
+            $tmpAudioDir: '%filesystem.tmp_audio_dir%'
+            $tmpTransDir: '%filesystem.tmp_trans_dir%'
+            $webTransDir: '%filesystem.web_trans_dir%'
