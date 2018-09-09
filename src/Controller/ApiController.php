@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\AudioUpload\ChunkMerger;
+use App\Enqueue\TranscriptionProcessor;
 use App\Entity\AudioUpload;
 use App\Entity\AudioUploadChunk;
 use App\Form\Type\AudioUploadChunkInputType;
@@ -10,6 +11,7 @@ use App\Form\Type\AudioUploadInputType;
 use App\Repository\AudioUploadRepository;
 use App\Security\Random\RandomStringGenerator;
 use Doctrine\ORM\EntityManagerInterface;
+use Enqueue\Client\ProducerInterface;
 use Google\Cloud\Storage\Bucket;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -137,7 +139,8 @@ class ApiController extends AbstractController
         ChunkMerger $chunkMerger,
         Filesystem $filesystem,
         EntityManagerInterface $em,
-        Bucket $googleStorageBucket
+        Bucket $googleStorageBucket,
+        ProducerInterface $producer
     ) {
         $audioUpload = $audioUploadRepository->find($request->request->get('upload_id'));
 
@@ -168,6 +171,10 @@ class ApiController extends AbstractController
         $filesystem->remove($chunkFiles);
         $em->flush();
 
+        $producer->sendEvent('transcribe', [
+            'id' => $audioUpload->getId()
+        ]);
+        
         return new JsonResponse([], 201, [
             'Location' => $this->generateUrl('api_get_audio', ['id' => $audioUpload->getId()])
         ]);

@@ -67,3 +67,9 @@ services:
             $tmpAudioDir: '%filesystem.tmp_audio_dir%'
             $tmpTransDir: '%filesystem.tmp_trans_dir%'
             $webTransDir: '%filesystem.web_trans_dir%'
+
+    App\Enqueue\TranscriptionProcessor:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+        tags:
+            - { name: enqueue.client.processor }

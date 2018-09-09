@@ -21,5 +21,8 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: speech2text
 
+    redis:
+        image: redis:4.0
+
 volumes:
     mysql-data: ~

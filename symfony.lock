@@ -77,6 +77,39 @@
     "egulias/email-validator": {
         "version": "2.1.5"
     },
+    "enqueue/async-event-dispatcher": {
+        "version": "0.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "0.7",
+            "ref": "9e937ccb79e08b978f91fb816d4e6d645813113a"
+        }
+    },
+    "enqueue/enqueue": {
+        "version": "0.8.35"
+    },
+    "enqueue/enqueue-bundle": {
+        "version": "0.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "0.4",
+            "ref": "daaea0035c3abd612f71f0288d5c20197c3c34ad"
+        }
+    },
+    "enqueue/null": {
+        "version": "0.8.24"
+    },
+    "enqueue/redis": {
+        "version": "0.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "0.7",
+            "ref": "2f8314cdcb8f459135aadbcb1e6545ccfdd899d9"
+        }
+    },
     "fig/link-util": {
         "version": "1.0.0"
     },
@@ -116,6 +149,9 @@
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
     },
+    "predis/predis": {
+        "version": "v1.1.1"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -130,6 +166,12 @@
     },
     "psr/simple-cache": {
         "version": "1.0.1"
+    },
+    "queue-interop/queue-interop": {
+        "version": "0.6.2"
+    },
+    "ramsey/uuid": {
+        "version": "3.8.0"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",
