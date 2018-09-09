@@ -100,6 +100,7 @@
         `);
 
         $('.js-upload-list').prepend($shadowNew);
+        $('.js-no-row').remove();
 
         return $shadowNew;
     }
