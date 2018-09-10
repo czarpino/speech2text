@@ -8,9 +8,6 @@ services:
             - ./:/mnt/app
             - ./var/data/key.json:/mnt/key.json
         working_dir: /mnt/app
-        environment:
-            WS_PORT: 3000
-            WS_HOST: ws
 
     queue:
         image: speech2text
@@ -21,7 +18,7 @@ services:
             - ./var/data/key.json:/mnt/key.json
         working_dir: /mnt/app
         environment:
-          WS_PORT: 3000
+          WS_PORT: ${WS_PORT}
           WS_HOST: ws
         command: "bin/console enqueue:consume --setup-broker -vvv"
 
@@ -33,10 +30,10 @@ services:
             - ./:/mnt/app
             - ./var/data/key.json:/mnt/key.json
         ports:
-            - "3000:3000"
+            - "${WS_PORT}:${WS_PORT}"
         working_dir: /mnt/app
         environment:
-            WS_PORT: 3000
+            WS_PORT: ${WS_PORT}
             WS_HOST: 0.0.0.0
         command: "bin/console gos:websocket:server"
 
@@ -45,6 +42,7 @@ services:
         restart: always
         volumes:
             - mysql-data:/var/lib/mysql
+            - ./docker/mysql:/etc/mysql/conf.d
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: speech2text
