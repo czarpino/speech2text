@@ -61,8 +61,7 @@
     <script src="bundles/goswebsocket/js/gos_web_socket_client.js"></script>
     <script src="bundles/goswebsocket/js/vendor/autobahn.min.js"></script>
     <script type="text/javascript">
-        var _WS_URI = "ws://{{ gos_web_socket_server_host }}:{{ gos_web_socket_server_port }}";
-        {#var _WS_URI = "ws://127.0.0.1:{{ gos_web_socket_server_port }}";#}
+        var _WS_URI = "ws://{{ gos_web_socket_server_host }}";
     </script>
     <script src="{{ asset('js/main.js') }}"></script>
 {% endblock %}

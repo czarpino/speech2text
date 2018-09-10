@@ -18,7 +18,6 @@ services:
             - ./var/data/key.json:/mnt/key.json
         working_dir: /mnt/app
         environment:
-          WS_PORT: ${WS_PORT}
           WS_HOST: ws
         command: "bin/console enqueue:consume --setup-broker -vvv"
 
@@ -33,7 +32,6 @@ services:
             - "${WS_PORT}:${WS_PORT}"
         working_dir: /mnt/app
         environment:
-            WS_PORT: ${WS_PORT}
             WS_HOST: 0.0.0.0
         command: "bin/console gos:websocket:server"
 
