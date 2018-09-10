@@ -44,7 +44,7 @@ class TranscriptionProcessor implements PsrProcessor, TopicSubscriberInterface
         }
 
         $command = sprintf('bin/console app:create-transcript %s', $audioUploadId);
-        $process = new Process($command, $this->projectDir);
+        $process = new Process($command, $this->projectDir, null, null, null);
         $process->run();
 
         if (!$process->isSuccessful()) {
